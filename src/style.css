@@ -1,6 +1,8 @@
 :root {
   --blue: rgb(51, 146, 206);
+  --blue-border: rgb(2, 80, 128);
   --lightgrey: rgb(235, 235, 235);
+  --modal: rgba(180, 180, 180, 0.3);
 }
 
 html,
@@ -18,7 +20,7 @@ body {
 body {
   display: grid;
   grid-template-columns: 1fr 3fr;
-  grid-template-rows: 100px 1fr;
+  grid-template-rows: 70px 1fr;
 }
 
 /* Header */
@@ -37,15 +39,40 @@ header > a {
   background-color: var(--lightgrey);
 }
 
+.project-form {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 2;
+}
+
+button.close-project-form {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.sidebar > .project {
+  width: 90%;
+  background-color: white;
+  border: 2px solid darkgrey;
+  border-radius: 4px;
+  padding: 4px;
+  margin: 5%;
+}
+
+.sidebar > .project.highlighted {
+  background-color: var(--blue);
+  border-color: var(--blue-border);
+}
+
 /* Main */
 main {
-  position: relative;
-
   background-color: white;
 }
 
-/* Main -> Form stuff */
-main > .show-form-button {
+/* Main -> Task Form */
+main > .show-task-form {
   position: absolute;
   bottom: 50px;
   right: 50px;
@@ -60,10 +87,11 @@ main > .show-form-button {
 
 }
 
-main > .add-form {
+.task-form {
   position: absolute;
   top: 50%;
   left: 50%;
+  z-index: 2;
 
   background-color: var(--lightgrey);
   border: 2px solid darkgrey;
@@ -71,24 +99,25 @@ main > .add-form {
   padding: 10px;
 }
 
-.add-form > * {
+.task-form > *,
+.project-form > * {
   display: block;
 }
 
-.form-submit-button {
+button.task-form-submit {
   background-color: var(--blue);
   color: white;
   border-radius: 8px;
   font-size: 24px;
 }
 
-.form-close-button {
+button.close-task-form {
   position: absolute;
   top: 0;
   right: 0;
 }
 
-/* Main -> Tasks */
+/* Main -> Displayed Tasks */
 .task-container {
   display: flex;
   background-color: var(--lightgrey);
@@ -121,4 +150,17 @@ main > .add-form {
   content: "Important";
   font-size: 12px;
   color: darkgrey;
+}
+
+/* Modal */
+#modal {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  background-color: var(--modal);
+  z-index: 1;
+}
+
+#modal.hidden {
+  z-index: -1;
 }

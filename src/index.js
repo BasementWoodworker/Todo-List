@@ -5,34 +5,55 @@ import "./style.css";
 
 // Main Logic
 let currentForm;
-const showFormButton = document.querySelector(".show-form-button");
-const main = document.querySelector("main");
+let currentProject;
 
-function isFormPresent() {
-  if (main.lastElementChild.tagName === "FORM") return true;
-  return false;
+// Initial Filling
+currentProject = addProject("general-tasks");
+// Initial Filling End
+
+function submitTaskForm(event) {
+  event.preventDefault();
+  const task = task_Module.createTask(
+    currentForm.titleInput.value, 
+    currentForm.descriptionInput.value, 
+    currentForm.importanceInput.checked, 
+    currentForm.dateInput.value,
+  );
+  task_Module.addTaskToProject(task, currentProject);
+  DOM_Module.displayTask(task);
+  DOM_Module.removeForm(currentForm.formElem);
 }
 
-showFormButton.addEventListener("click", () => {
-  if (isFormPresent()) {
-    currentForm.form.remove();
-    return;
-  }
-  currentForm = DOM_Module.showForm();
+function addProject(projectName) {
+  const project = task_Module.addNewProject(projectName);
+  const projectElem = DOM_Module.displayProject(project);
 
-  const closeFormButton = document.querySelector(".form-close-button");
-  closeFormButton.addEventListener("click", () => currentForm.form.remove());
+  projectElem.addEventListener("click", () => {
+    currentProject = project;
+    DOM_Module.highlightProject(projectElem);
+  });
 
-  currentForm.form.addEventListener("submit", (event) => {
-    event.preventDefault();
-    const task = new task_Module.Task(
-      currentForm.titleInput.value, 
-      currentForm.descriptionInput.value, 
-      currentForm.importanceInput.checked, 
-      currentForm.dateInput.value,
-    );
-    task_Module.addTaskToProject(task, "general");
-    DOM_Module.displayTask(task);
-    currentForm.form.remove();
-  })
+  return project;
+}
+
+
+DOM_Module.showTaskForm.addEventListener("click", () => {
+  currentForm = DOM_Module.buildTaskForm();
+  currentForm.formElem.addEventListener("submit", submitTaskForm);
+  currentForm.closeTaskForm.addEventListener("click", () => DOM_Module.removeForm(currentForm.formElem));
 })
+
+
+DOM_Module.showProjectForm.addEventListener("click", () => {
+  currentForm = DOM_Module.buildProjectForm();
+  currentForm.formElem.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const projectName = event.target.children[1].value
+    addProject(projectName);
+    DOM_Module.removeForm(currentForm.formElem);
+  });
+  currentForm.closeProjectForm.addEventListener("click", () => DOM_Module.removeForm(currentForm.formElem));
+});
+
+
+DOM_Module.modal.addEventListener("click", () => DOM_Module.removeForm(currentForm.formElem));

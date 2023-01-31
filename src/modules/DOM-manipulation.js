@@ -1,32 +1,42 @@
 import createElementWithClassAndContent from "./create-element-custom-function.js"
 
 // Initial page build
-const body = document.querySelector("body");
+const body = document.body;
 
-// header
+// Header
 const header = document.createElement("header");
 const headerLink = createElementWithClassAndContent("a", "", "Todo List");
 headerLink.href = "";
 header.appendChild(headerLink);
 
-// sidebar
+// Sidebar
 const sidebar = createElementWithClassAndContent("nav", "sidebar", "");
+const showProjectForm = createElementWithClassAndContent("button", "show-project-form", "+ Add New Project");
+sidebar.append(
+  showProjectForm
+)
 
-// main
+// Main
 const main = document.createElement("main");
-const showFormButton = createElementWithClassAndContent("button", "show-form-button", "+");
-main.appendChild(showFormButton);
+const showTaskForm = createElementWithClassAndContent("button", "show-task-form", "+");
+main.appendChild(showTaskForm);
+
+// Modal
+const modal = document.createElement("div");
+modal.setAttribute("id", "modal");
+modal.classList.add("hidden");
 
 body.append(
   header,
   sidebar,
-  main
+  main,
+  modal
 )
-// Initial page build end
+// Initial build end
 
-function showForm() {
-  const form = createElementWithClassAndContent("form", "add-form", "");
-  main.appendChild(form);
+function buildTaskForm() {
+  const formElem = createElementWithClassAndContent("form", "task-form", "");
+  body.appendChild(formElem);
 
   const titleInput = createElementWithClassAndContent("input", "title-input", "");
   titleInput.setAttribute("type", "text");
@@ -40,6 +50,8 @@ function showForm() {
   const importanceLabel = createElementWithClassAndContent("label", "importance-label", "Important");
   const importanceInput = createElementWithClassAndContent("input", "importance-input", "");
   importanceInput.setAttribute("type", "checkbox");
+  importanceInput.setAttribute("id", "importance-input");
+  importanceLabel.setAttribute("for", "importance-input");
   const importanceContainer = createElementWithClassAndContent("div", "importance-container", "")
   importanceContainer.append(importanceLabel, importanceInput);
 
@@ -51,27 +63,29 @@ function showForm() {
   const day = date.getDate() < 10 ? `0${date.getDate()}` : date.getDate();
   const hours = date.getHours() < 10 ? `0${date.getHours()}` : date.getHours();
   const minutes = date.getMinutes() < 10 ? `0${date.getMinutes()}` : date.getMinutes();
-  dateInput.value = `${year}-${month}-${day}T${hours+1}:${minutes}`;
+  dateInput.value = `${year}-${month}-${day}T${hours}:${minutes}`;
 
-  const submitButton = createElementWithClassAndContent("button", "form-submit-button", "Add");
+  const submitButton = createElementWithClassAndContent("button", "task-form-submit", "Add");
+  const closeTaskForm = createElementWithClassAndContent("button", "close-task-form", "⨉");
 
-  const closeButton = createElementWithClassAndContent("button", "form-close-button", "⨉");
-
-  form.append(
+  formElem.append(
     titleInput,
     descriptionInput,
     importanceContainer,
     dateInput,
     submitButton,
-    closeButton
+    closeTaskForm
   )
 
+  toggleModal();
+
   return {
-    form,
+    formElem,
     titleInput,
     descriptionInput,
     importanceInput,
-    dateInput
+    dateInput,
+    closeTaskForm
   }
 }
 
@@ -87,7 +101,69 @@ function displayTask(task) {
   main.appendChild(taskContainer);
 }
 
+
+function buildProjectForm() {
+  const formElem = createElementWithClassAndContent("form", "project-form", "");
+  body.appendChild(formElem);
+
+  const titleLabel = createElementWithClassAndContent("label", "project-title-label", "Project Name");
+  const titleInput = createElementWithClassAndContent("input", "project-title-input", "");
+  titleInput.setAttribute("id", "project-title-input");
+  titleLabel.setAttribute("for", "project-title-input");
+
+  const submitButton = createElementWithClassAndContent("button", "project-form-submit", "Add");
+  const closeProjectForm = createElementWithClassAndContent("button", "close-project-form", "⨉");
+
+  formElem.append(
+    titleLabel,
+    titleInput,
+    submitButton,
+    closeProjectForm
+  )
+
+  toggleModal();
+
+  return {
+    formElem,
+    titleInput,
+    closeProjectForm
+  }
+}
+
+function displayProject(project) {
+  const projectElem = createElementWithClassAndContent("div", "project", project.title);
+  projectElem.setAttribute("data-project-name", project.title);
+  sidebar.appendChild(projectElem);
+  highlightProject(projectElem);
+  return projectElem;
+}
+
+let previousProjectElem;
+function highlightProject(projectElem) {
+  if (previousProjectElem !== undefined) previousProjectElem.classList.toggle("highlighted");
+  projectElem.classList.toggle("highlighted");
+  previousProjectElem = projectElem;
+}
+
+
+function removeForm(form) {
+  form.remove();
+  toggleModal();
+}
+
+function toggleModal() {
+  modal.classList.toggle("hidden");
+}
+
+
 export default {
-  showForm,
-  displayTask
+  buildTaskForm,
+  displayTask,
+  buildProjectForm,
+  displayProject,
+  highlightProject,
+  removeForm,
+  showTaskForm,
+  showProjectForm,
+  modal
 }
