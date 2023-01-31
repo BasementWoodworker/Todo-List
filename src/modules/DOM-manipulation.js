@@ -27,37 +27,64 @@ body.append(
 function showForm() {
   const form = createElementWithClassAndContent("form", "add-form", "");
   main.appendChild(form);
-  const titleInput = document.createElement("input");
+
+  const titleInput = createElementWithClassAndContent("input", "title-input", "");
   titleInput.setAttribute("type", "text");
   titleInput.setAttribute("placeholder", "Task");
   titleInput.setAttribute("required", "");
+
   const descriptionInput = document.createElement("textarea");
   descriptionInput.setAttribute("placeholder", "Description");
   descriptionInput.setAttribute("maxlength", 300);
+
+  const importanceLabel = createElementWithClassAndContent("label", "importance-label", "Important");
+  const importanceInput = createElementWithClassAndContent("input", "importance-input", "");
+  importanceInput.setAttribute("type", "checkbox");
+  const importanceContainer = createElementWithClassAndContent("div", "importance-container", "")
+  importanceContainer.append(importanceLabel, importanceInput);
+
+  const dateInput = createElementWithClassAndContent("input", "date-input", "");
+  dateInput.setAttribute("type", "datetime-local");
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = (date.getMonth()+1) < 10 ? `0${date.getMonth()+1}` : date.getMonth()+1;
+  const day = date.getDate() < 10 ? `0${date.getDate()}` : date.getDate();
+  const hours = date.getHours() < 10 ? `0${date.getHours()}` : date.getHours();
+  const minutes = date.getMinutes() < 10 ? `0${date.getMinutes()}` : date.getMinutes();
+  dateInput.value = `${year}-${month}-${day}T${hours+1}:${minutes}`;
+
+  const submitButton = createElementWithClassAndContent("button", "form-submit-button", "Add");
+
+  const closeButton = createElementWithClassAndContent("button", "form-close-button", "⨉");
+
   form.append(
     titleInput,
     descriptionInput,
-    createElementWithClassAndContent("button", "", "Add")
+    importanceContainer,
+    dateInput,
+    submitButton,
+    closeButton
   )
 
   return {
     form,
     titleInput,
-    descriptionInput
+    descriptionInput,
+    importanceInput,
+    dateInput
   }
 }
 
 function displayTask(task) {
-  console.log("A");
+  
   const taskContainer = createElementWithClassAndContent("div", "task-container", "");
   taskContainer.append(
-    createElementWithClassAndContent("span", "task-title", task.title),
-    createElementWithClassAndContent("span", "task-description", task.description),
-    createElementWithClassAndContent("span", "task-importance", task.importance),
-    createElementWithClassAndContent("span", "task-date", task.dueDate)
+    createElementWithClassAndContent("div", "task-title", task.title),
+    createElementWithClassAndContent("div", "task-description", task.description),
+    createElementWithClassAndContent("div", "task-importance", task.importanceSymbol),
+    createElementWithClassAndContent("div", "task-date", task.timeLeft())
   )
   main.appendChild(taskContainer);
-
 }
 
 export default {

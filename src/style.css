@@ -44,6 +44,7 @@ main {
   background-color: white;
 }
 
+/* Main -> Form stuff */
 main > .show-form-button {
   position: absolute;
   bottom: 50px;
@@ -74,18 +75,50 @@ main > .add-form {
   display: block;
 }
 
-.add-form > button {
+.form-submit-button {
   background-color: var(--blue);
   color: white;
   border-radius: 8px;
   font-size: 24px;
 }
 
+.form-close-button {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+/* Main -> Tasks */
 .task-container {
   display: flex;
-  justify-content: space-around;
   background-color: var(--lightgrey);
   padding: 12px;
   margin: 8px;
   border-radius: 4px;
+}
+
+.task-title {
+  width: 30%;
+}
+
+.task-description {
+  width: 30%;
+}
+
+.task-importance {
+  position: relative;
+
+  color: rgb(226, 166, 0);
+  font-size: 24px;
+  padding: 0px 8px;
+}
+
+.task-importance:hover::before {
+  position: absolute;
+  top: 5px;
+  left: 15px;
+
+  content: "Important";
+  font-size: 12px;
+  color: darkgrey;
 }
