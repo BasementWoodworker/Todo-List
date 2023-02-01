@@ -39,6 +39,21 @@ header > a {
   background-color: var(--lightgrey);
 }
 
+span.projects-heading {
+  color: var(--blue);
+  font-size: 48px;
+}
+
+button.show-project-form {
+  background-color: var(--blue);
+  color: white;
+  font-size: 24px;
+  height: 30px;
+  width: 30px;
+  border: none;
+  border-radius: 50%;
+}
+
 .project-form {
   position: absolute;
   top: 50%;
@@ -52,7 +67,7 @@ button.close-project-form {
   right: 0;
 }
 
-.sidebar > .project {
+.project-navigation > .project {
   width: 90%;
   background-color: white;
   border: 2px solid darkgrey;
@@ -61,7 +76,11 @@ button.close-project-form {
   margin: 5%;
 }
 
-.sidebar > .project.highlighted {
+.project-navigation > .project:hover {
+  border-color: var(--blue);
+}
+
+.project-navigation > .project.highlighted {
   background-color: var(--blue);
   border-color: var(--blue-border);
 }
@@ -72,7 +91,7 @@ main {
 }
 
 /* Main -> Task Form */
-main > .show-task-form {
+main > button.show-task-form {
   position: absolute;
   bottom: 50px;
   right: 50px;
@@ -100,11 +119,12 @@ main > .show-task-form {
 }
 
 .task-form > *,
-.project-form > * {
+.project-form > *,
+.task-edit-form > * {
   display: block;
 }
 
-button.task-form-submit {
+button.submit-task-form {
   background-color: var(--blue);
   color: white;
   border-radius: 8px;
@@ -112,6 +132,33 @@ button.task-form-submit {
 }
 
 button.close-task-form {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+/* Main -> Task Edit Form */
+
+.task-edit-form {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 2;
+
+  background-color: var(--lightgrey);
+  border: 2px solid darkgrey;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+button.submit-edit-form {
+  background-color: var(--blue);
+  color: white;
+  border-radius: 8px;
+  font-size: 24px;
+}
+
+button.close-edit-form {
   position: absolute;
   top: 0;
   right: 0;

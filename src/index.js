@@ -1,4 +1,4 @@
-import task_Module from "./modules/task-creation-and-storage.js";
+import Task_Module from "./modules/task-creation-and-storage.js";
 import DOM_Module from "./modules/DOM-manipulation.js";
 import "./style.css";
 
@@ -9,37 +9,68 @@ let currentProject;
 
 // Initial Filling
 currentProject = addProject("general-tasks");
+addTask("Walk my dog", "description placeholder", false, "2023-02-05T11:00");
 // Initial Filling End
 
-function submitTaskForm(event) {
-  event.preventDefault();
-  const task = task_Module.createTask(
-    currentForm.titleInput.value, 
-    currentForm.descriptionInput.value, 
-    currentForm.importanceInput.checked, 
-    currentForm.dateInput.value,
+function addTask(title, description, importance, dueDate) {
+  const task = Task_Module.createTask(title, description, importance, dueDate, currentProject);
+  Task_Module.addTaskToProject(task, currentProject);
+  const taskDOM = DOM_Module.displayTask(task);
+
+  taskDOM.editTaskButton.addEventListener("click", () => {
+    currentForm = DOM_Module.buildTaskEdit(task);
+    currentForm.formElem.addEventListener("submit", (event) => {
+      event.preventDefault();
+      editTask(task, taskDOM.taskContainer);
+      DOM_Module.removeForm(currentForm.formElem);
+    })
+    currentForm.closeEditForm.addEventListener("click", () => DOM_Module.removeForm(currentForm.formElem));
+  })
+  taskDOM.deleteTaskButton.addEventListener("click", (event) => {
+    const taskElem = event.target.parentNode;
+    Task_Module.removeTask(task);
+    DOM_Module.removeTask(taskElem)
+  })
+}
+
+function editTask(task, taskContainer) {
+  Task_Module.editTask(
+    task, 
+    currentForm.titleInput.value,
+    currentForm.descriptionInput.value,
+    currentForm.importanceInput.checked,
+    currentForm.dateInput.value
   );
-  task_Module.addTaskToProject(task, currentProject);
-  DOM_Module.displayTask(task);
-  DOM_Module.removeForm(currentForm.formElem);
+  DOM_Module.editTask(task, taskContainer);
 }
 
 function addProject(projectName) {
-  const project = task_Module.addNewProject(projectName);
+  const project = Task_Module.createNewProject(projectName);
   const projectElem = DOM_Module.displayProject(project);
-
-  projectElem.addEventListener("click", () => {
-    currentProject = project;
-    DOM_Module.highlightProject(projectElem);
-  });
+  selectProject(project, projectElem);
+  projectElem.addEventListener("click", () => selectProject(project, projectElem));
 
   return project;
+}
+
+function selectProject(project, projectElem) {
+  currentProject = project;
+  DOM_Module.highlightProject(projectElem);
 }
 
 
 DOM_Module.showTaskForm.addEventListener("click", () => {
   currentForm = DOM_Module.buildTaskForm();
-  currentForm.formElem.addEventListener("submit", submitTaskForm);
+  currentForm.formElem.addEventListener("submit", (event) => {
+    event.preventDefault();
+    addTask(
+      currentForm.titleInput.value, 
+      currentForm.descriptionInput.value, 
+      currentForm.importanceInput.checked,
+      currentForm.dateInput.value,
+    );
+    DOM_Module.removeForm(currentForm.formElem);
+  });
   currentForm.closeTaskForm.addEventListener("click", () => DOM_Module.removeForm(currentForm.formElem));
 })
 
@@ -49,7 +80,7 @@ DOM_Module.showProjectForm.addEventListener("click", () => {
   currentForm.formElem.addEventListener("submit", (event) => {
     event.preventDefault();
     const projectName = event.target.children[1].value
-    addProject(projectName);
+    currentProject = addProject(projectName);
     DOM_Module.removeForm(currentForm.formElem);
   });
   currentForm.closeProjectForm.addEventListener("click", () => DOM_Module.removeForm(currentForm.formElem));

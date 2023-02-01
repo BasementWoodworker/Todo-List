@@ -1,9 +1,12 @@
+const allProjects = [];
+
 class Task {
-  constructor(title, description, importance, dueDate) {
+  constructor(title, description, importance, dueDate, itsProject) {
     this.title = title;
     this.description = description;
     this.importance = importance;
     this.dueDate = dueDate;
+    this.itsProject = itsProject;
   }
 
   get importanceSymbol() {
@@ -29,18 +32,29 @@ class Project {
   }
 }
 
-function createTask(title, description, importance, dueDate) {
-  return new Task(title, description, importance, dueDate);
+function createTask(title, description, importance, dueDate, itsProject) {
+  return new Task(title, description, importance, dueDate, itsProject);
 }
 
-
-const allProjects = [];
+function editTask(task, newTitle, newDescription, newImportance, newDate) {
+  task.title = newTitle;
+  task.description = newDescription;
+  task.importance = newImportance;
+  task.dueDate = newDate;
+}
 
 function addTaskToProject(task, project) {
   project.tasks.push(task);
 }
 
-function addNewProject(title) {
+function removeTask(task) {
+  const taskArray = task.itsProject.tasks;
+  const taskIndex = taskArray.indexOf(task);
+  taskArray.splice(taskIndex, 1);
+}
+
+
+function createNewProject(title) {
   const project = new Project(title);
   allProjects.push(project);
   return project;
@@ -49,6 +63,8 @@ function addNewProject(title) {
 
 export default {
   createTask,
+  editTask,
   addTaskToProject,
-  addNewProject
+  removeTask,
+  createNewProject
 }
