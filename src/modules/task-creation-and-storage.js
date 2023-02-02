@@ -71,6 +71,16 @@ function createNewProject(title) {
   return project;
 }
 
+function editProject(project, newTitle) {
+  project.title = newTitle;
+}
+
+function removeProject(project) {
+  const projectIndex = allProjects.indexOf(project);
+  allProjects.splice(projectIndex, 1);
+  console.log(allProjects);
+}
+
 
 function getAllProjectsAndTasks() {
   return allProjects;
@@ -87,6 +97,8 @@ export default {
   addTaskToProject,
   removeTask,
   createNewProject,
+  editProject,
+  removeProject,
   getAllProjectsAndTasks,
   saveChanges,
   regainTaskMethods

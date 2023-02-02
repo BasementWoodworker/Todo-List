@@ -67,7 +67,12 @@ button.close-project-form {
   right: 0;
 }
 
-.project-navigation > .project {
+
+/* Sidebar -> General Navigation */ 
+
+.general-navigation > div {
+  display: flex;
+  justify-content: space-between;
   width: 90%;
   background-color: white;
   border: 2px solid darkgrey;
@@ -76,11 +81,31 @@ button.close-project-form {
   margin: 5%;
 }
 
-.project-navigation > .project:hover {
+.general-navigation > div:hover {
   border-color: var(--blue);
 }
 
-.project-navigation > .project.highlighted {
+.general-navigation > div.highlighted {
+  background-color: var(--blue);
+  border-color: var(--blue-border);
+}
+
+.project-container {
+  display: flex;
+  justify-content: space-between;
+  width: 90%;
+  background-color: white;
+  border: 2px solid darkgrey;
+  border-radius: 4px;
+  padding: 4px;
+  margin: 5%;
+}
+
+.project-container:hover {
+  border-color: var(--blue);
+}
+
+.project-container.highlighted {
   background-color: var(--blue);
   border-color: var(--blue-border);
 }

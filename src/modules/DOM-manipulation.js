@@ -11,23 +11,39 @@ header.appendChild(headerLink);
 
 // Sidebar
 const sidebar = createElementWithClassAndContent("nav", "sidebar", "");
-const projectNav = createElementWithClassAndContent("nav", "project-navigation", "");
 const projectsTop = createElementWithClassAndContent("div", "projects-top-container", "");
 const projectsHeading = createElementWithClassAndContent("span", "projects-heading", "Projects");
+const generalNav = createElementWithClassAndContent("nav", "general-navigation", "");
+const navAll = createElementWithClassAndContent("div", "all-projects", "All");
+const navToday = createElementWithClassAndContent("div", "today-projects", "Today");
+const navWeek = createElementWithClassAndContent("div", "this-week-projects", "Week");
+const navImportant = createElementWithClassAndContent("div", "important-projects", "Important");
+generalNav.append(
+  navAll,
+  navToday,
+  navWeek,
+  navImportant
+)
+const projectNav = createElementWithClassAndContent("nav", "project-navigation", "");
 const showProjectForm = createElementWithClassAndContent("button", "show-project-form", "+");
 projectsTop.append(
   projectsHeading,
   showProjectForm
 )
 sidebar.append(
+  generalNav,
   projectsTop,
-  projectNav,
+  projectNav
 )
 
 // Main
 const main = document.createElement("main");
 const showTaskForm = createElementWithClassAndContent("button", "show-task-form", "+");
-main.appendChild(showTaskForm);
+const containerOfAllTasks = createElementWithClassAndContent("div", "all-tasks-container", "");
+main.append(
+  containerOfAllTasks,
+  showTaskForm
+);
 
 // Modal
 const modal = document.createElement("div");
@@ -41,15 +57,6 @@ body.append(
   modal
 )
 
-function showAllProjectsAndTasks(allProjects) {
-  console.log(allProjects);
-  allProjects.forEach(project => {
-    displayProject(project);
-    project.tasks.forEach(task => {
-      displayTask(task);
-    })
-  })
-}
 // Initial build end
 
 function buildTaskForm() {
@@ -109,7 +116,7 @@ function buildTaskForm() {
 
 function displayTask(task) {
   const taskContainer = createElementWithClassAndContent("div", "task-container", "");
-  main.appendChild(taskContainer);
+  containerOfAllTasks.appendChild(taskContainer);
   const editTaskButton = createElementWithClassAndContent("button", "edit-task", "EDIT");
   const deleteTaskButton = createElementWithClassAndContent("button", "delete-task", "x");
   taskContainer.append(
@@ -185,8 +192,12 @@ function editTask(updatedTask, taskContainer) {
   taskContainer.querySelector(".task-date").textContent = updatedTask.timeLeft();
 }
 
-function removeTask(taskElem) {
-  taskElem.remove();
+function removeTask(taskContainer) {
+  taskContainer.remove();
+}
+
+function clearTaskContiner() {
+  containerOfAllTasks.replaceChildren();
 }
 
 
@@ -219,17 +230,77 @@ function buildProjectForm() {
 }
 
 function displayProject(project) {
-  const projectElem = createElementWithClassAndContent("div", "project", project.title);
-  projectElem.setAttribute("data-project-name", project.title);
-  projectNav.appendChild(projectElem);
-  return projectElem;
+  const projectContainer = createElementWithClassAndContent("div", "project-container", "");
+  projectNav.appendChild(projectContainer);
+
+  const projectTitle = createElementWithClassAndContent("div", "project-title", project.title);
+  const editProjectButton = createElementWithClassAndContent("button", "edit-project", "RENAME");
+  const deleteProjectButton = createElementWithClassAndContent("button", "delete-project", "DELETE");
+  const buttonContainer = createElementWithClassAndContent("div", "project-button-container", "");
+  buttonContainer.append(
+    editProjectButton,
+    deleteProjectButton
+  )
+  projectContainer.append(
+    projectTitle,
+    buttonContainer
+  )
+  return {
+    projectContainer,
+    editProjectButton,
+    deleteProjectButton
+  };
 }
 
-let previousProjectElem;
-function highlightProject(projectElem) {
-  if (previousProjectElem !== undefined) previousProjectElem.classList.toggle("highlighted");
-  projectElem.classList.toggle("highlighted");
-  previousProjectElem = projectElem;
+function buildProjectEdit(projectTitle) {
+  const formElem = createElementWithClassAndContent("form", "project-form", "");
+  body.appendChild(formElem);
+
+  const titleLabel = createElementWithClassAndContent("label", "project-title-label", "Project Name");
+  const titleInput = createElementWithClassAndContent("input", "project-title-input", "");
+  titleInput.setAttribute("id", "project-title-input");
+  titleInput.value = projectTitle;
+  titleLabel.setAttribute("for", "project-title-input");
+
+  const submitButton = createElementWithClassAndContent("button", "project-form-submit", "Save");
+  const closeProjectFormButton = createElementWithClassAndContent("button", "close-project-form", "⨉");
+
+  formElem.append(
+    titleLabel,
+    titleInput,
+    submitButton,
+    closeProjectFormButton
+  )
+
+  toggleModal();
+
+  return {
+    formElem,
+    titleInput,
+    closeProjectFormButton
+  }
+}
+
+function editProject(projectContainer, newTitle) {
+  projectContainer.querySelector(".project-title").textContent = newTitle;
+}
+
+function removeProject(projectContainer) {
+  projectContainer.remove();
+}
+
+let previousProject;
+function highlightProject(currentProject) {
+  if (previousProject !== undefined) previousProject.classList.toggle("highlighted");
+  currentProject.classList.toggle("highlighted");
+  previousProject = currentProject;
+}
+
+let previousNav;
+function highlightNav(currentNav) {
+  if (previousNav !== undefined) previousNav.classList.toggle("highlighted");
+  currentNav.classList.toggle("highlighted");
+  previousNav = currentNav;
 }
 
 
@@ -244,17 +315,25 @@ function toggleModal() {
 
 
 export default {
-  showAllProjectsAndTasks,
   buildTaskForm,
   displayTask,
+  clearTaskContiner,
   buildTaskEdit,
   editTask,
   removeTask,
   buildProjectForm,
   displayProject,
+  buildProjectEdit,
+  editProject,
+  removeProject,
   highlightProject,
+  highlightNav,
   removeForm,
   showTaskForm,
   showProjectForm,
+  navAll,
+  navToday,
+  navWeek,
+  navImportant,
   modal
 }
