@@ -40,6 +40,16 @@ body.append(
   main,
   modal
 )
+
+function showAllProjectsAndTasks(allProjects) {
+  console.log(allProjects);
+  allProjects.forEach(project => {
+    displayProject(project);
+    project.tasks.forEach(task => {
+      displayTask(task);
+    })
+  })
+}
 // Initial build end
 
 function buildTaskForm() {
@@ -190,13 +200,13 @@ function buildProjectForm() {
   titleLabel.setAttribute("for", "project-title-input");
 
   const submitButton = createElementWithClassAndContent("button", "project-form-submit", "Add");
-  const closeProjectForm = createElementWithClassAndContent("button", "close-project-form", "⨉");
+  const closeProjectFormButton = createElementWithClassAndContent("button", "close-project-form", "⨉");
 
   formElem.append(
     titleLabel,
     titleInput,
     submitButton,
-    closeProjectForm
+    closeProjectFormButton
   )
 
   toggleModal();
@@ -204,7 +214,7 @@ function buildProjectForm() {
   return {
     formElem,
     titleInput,
-    closeProjectForm
+    closeProjectFormButton
   }
 }
 
@@ -234,6 +244,7 @@ function toggleModal() {
 
 
 export default {
+  showAllProjectsAndTasks,
   buildTaskForm,
   displayTask,
   buildTaskEdit,

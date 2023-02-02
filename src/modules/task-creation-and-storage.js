@@ -1,12 +1,16 @@
-const allProjects = [];
+if (localStorage.getItem("allProjects") === null) {
+  localStorage.setItem("allProjects", "[]");
+} 
+//localStorage.setItem("allProjects", "[]");
+const allProjects = JSON.parse(localStorage.getItem("allProjects"));
 
 class Task {
-  constructor(title, description, importance, dueDate, itsProject) {
+  constructor(title, description, importance, dueDate, projectName) {
     this.title = title;
     this.description = description;
     this.importance = importance;
     this.dueDate = dueDate;
-    this.itsProject = itsProject;
+    this.projectName = projectName;
   }
 
   get importanceSymbol() {
@@ -32,8 +36,13 @@ class Project {
   }
 }
 
-function createTask(title, description, importance, dueDate, itsProject) {
-  return new Task(title, description, importance, dueDate, itsProject);
+
+function regainTaskMethods(task) {
+  Object.setPrototypeOf(task, Task.prototype);
+}
+
+function createTask(title, description, importance, dueDate, projectName) {
+  return new Task(title, description, importance, dueDate, projectName);
 }
 
 function editTask(task, newTitle, newDescription, newImportance, newDate) {
@@ -45,10 +54,12 @@ function editTask(task, newTitle, newDescription, newImportance, newDate) {
 
 function addTaskToProject(task, project) {
   project.tasks.push(task);
+  console.log(allProjects);
 }
 
 function removeTask(task) {
-  const taskArray = task.itsProject.tasks;
+  const taskArray = allProjects.find(project => task.projectName === project.title).tasks;
+  console.log(allProjects);
   const taskIndex = taskArray.indexOf(task);
   taskArray.splice(taskIndex, 1);
 }
@@ -61,10 +72,22 @@ function createNewProject(title) {
 }
 
 
+function getAllProjectsAndTasks() {
+  return allProjects;
+}
+
+function saveChanges() {
+  localStorage.setItem("allProjects", JSON.stringify(allProjects));
+}
+
+
 export default {
   createTask,
   editTask,
   addTaskToProject,
   removeTask,
-  createNewProject
+  createNewProject,
+  getAllProjectsAndTasks,
+  saveChanges,
+  regainTaskMethods
 }
