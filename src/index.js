@@ -7,33 +7,15 @@ import "./style.css";
 let currentForm;
 let currentProject;
 
-/* Initial Filling
-currentProject = addProject("general-tasks");
-addTask("Walk my dog", "description placeholder", false, "2023-02-05T11:00");
-*/
 
-
-function initialLoad() {
-  const allProjects = Task_Module.getAllProjectsAndTasks();
-  console.log(allProjects);
-  allProjects.forEach(project => {
-    addProject(project);
-    project.tasks.forEach(task => {
-      Task_Module.regainTaskMethods(task);
-      const taskDOM = DOM_Module.displayTask(task);
-      taskDOM.editTaskButton.addEventListener("click", () => taskEditButton_Callback(task, taskDOM.taskContainer));
-      taskDOM.deleteTaskButton.addEventListener("click", () => taskDeleteButton_Callback(task, taskDOM.taskContainer));
-    })
-  })
-}
-
-function addTask(title, description, importance, dueDate) {
+function addTaskToStorage(title, description, importance, dueDate) {
   const task = Task_Module.createTask(title, description, importance, dueDate, currentProject.title);
   Task_Module.addTaskToProject(task, currentProject);
-  const taskDOM = DOM_Module.displayTask(task);
+  return task;
+}
 
-  console.log("+");
-  console.log(taskDOM.taskContainer);
+function addTaskToDOM(task) {
+  const taskDOM = DOM_Module.displayTask(task);
   taskDOM.editTaskButton.addEventListener("click", () => taskEditButton_Callback(task, taskDOM.taskContainer));
   taskDOM.deleteTaskButton.addEventListener("click", () => taskDeleteButton_Callback(task, taskDOM.taskContainer));
 }
@@ -66,12 +48,6 @@ function editTask(task, taskContainer) {
   DOM_Module.editTask(task, taskContainer);
 }
 
-function displayExistingTask(task) {
-  const taskDOM = DOM_Module.displayTask(task);
-  taskDOM.editTaskButton.addEventListener("click", () => taskEditButton_Callback(task, taskDOM.taskContainer));
-  taskDOM.deleteTaskButton.addEventListener("click", () => taskDeleteButton_Callback(task, taskDOM.taskContainer));
-}
-
 
 function addProject(project) {
   const projectDOM = DOM_Module.displayProject(project);
@@ -79,13 +55,10 @@ function addProject(project) {
   projectDOM.projectContainer.addEventListener("click", () => projectClick_Callback(project, projectDOM.projectContainer));
   projectDOM.editProjectButton.addEventListener("click", (event) => projectEditButton_Callback(event, project, projectDOM.projectContainer));
   projectDOM.deleteProjectButton.addEventListener("click", (event) => projectDeleteButton_Callback(event, project, projectDOM.projectContainer));
-  return project;
 }
 
 function projectClick_Callback(project, projectContainer) {
   selectProject(project, projectContainer);
-  DOM_Module.clearTaskContiner();
-  project.tasks.forEach(task => displayExistingTask(task));
 }
 
 function projectEditButton_Callback(event, project, projectContainer) {
@@ -103,11 +76,20 @@ function projectDeleteButton_Callback(event, project, projectContainer) {
   event.stopPropagation();
   Task_Module.removeProject(project);
   DOM_Module.removeProject(projectContainer);
+  selectGeneralProject();
 }
 
 function selectProject(project, projectContainer) {
   currentProject = project;
+  DOM_Module.clearTaskContainer();
   DOM_Module.highlightProject(projectContainer);
+  DOM_Module.highlightNav(projectContainer);
+  DOM_Module.setMainTitle(project.title);
+  project.tasks.forEach(task => addTaskToDOM(task));
+}
+
+function selectGeneralProject() {
+  selectProject(Task_Module.getAllProjectsAndTasks()[0], document.querySelector(".project-container"));
 }
 
 function editProject(project, newTitle, projectContainer) {
@@ -121,12 +103,13 @@ DOM_Module.showTaskForm.addEventListener("click", () => {
   currentForm = DOM_Module.buildTaskForm();
   currentForm.formElem.addEventListener("submit", (event) => {
     event.preventDefault();
-    addTask(
+    const task = addTaskToStorage(
       currentForm.titleInput.value, 
       currentForm.descriptionInput.value, 
       currentForm.importanceInput.checked,
       currentForm.dateInput.value,
     );
+    addTaskToDOM(task);
     DOM_Module.removeForm(currentForm.formElem);
   });
   currentForm.closeTaskForm.addEventListener("click", () => DOM_Module.removeForm(currentForm.formElem));
@@ -139,71 +122,36 @@ DOM_Module.showProjectForm.addEventListener("click", () => {
     event.preventDefault();
     const projectName = event.target.children[1].value
     const project = Task_Module.createNewProject(projectName);
-    currentProject = addProject(project); //!!!
+    addProject(project);
     DOM_Module.removeForm(currentForm.formElem);
   });
   currentForm.closeProjectFormButton.addEventListener("click", () => DOM_Module.removeForm(currentForm.formElem));
 });
 
 
-DOM_Module.navAll.addEventListener("click", () => {
-  DOM_Module.highlightNav(DOM_Module.navAll);
-  displayAllTasks();
-});
-DOM_Module.navToday.addEventListener("click", () => {
-  DOM_Module.highlightNav(DOM_Module.navToday);
-  displayTodayTasks();
-});
-DOM_Module.navWeek.addEventListener("click", () => {
-  DOM_Module.highlightNav(DOM_Module.navWeek);
-  displayWeekTasks();
-});
-DOM_Module.navImportant.addEventListener("click", () => {
-  DOM_Module.highlightNav(DOM_Module.navImportant);
-  displayImportantTasks();
-});
+DOM_Module.navAll.addEventListener("click", event => topNav_Callback(event, "All"));
+DOM_Module.navToday.addEventListener("click", event => topNav_Callback(event, "Today"));
+DOM_Module.navWeek.addEventListener("click", event => topNav_Callback(event, "Week"));
+DOM_Module.navImportant.addEventListener("click", event => topNav_Callback(event, "Important"));
 
-function displayAllTasks() {
-  const allProjects = Task_Module.getAllProjectsAndTasks();
-  DOM_Module.clearTaskContiner();
-  allProjects.forEach(project => {
-    project.tasks.forEach(task => displayExistingTask(task));
-  });
+function topNav_Callback(event, criteria) {
+  DOM_Module.highlightNav(event.target);
+  DOM_Module.clearTaskContainer();
+  DOM_Module.setMainTitle(criteria);
+
+  const filteredArray = Task_Module.getFilteredTasks(criteria);
+  filteredArray.forEach(task => addTaskToDOM(task));
 }
 
-function displayTodayTasks() {
-  const allProjects = Task_Module.getAllProjectsAndTasks();
-  DOM_Module.clearTaskContiner();
-  allProjects.forEach(project => {
-    project.tasks.forEach(task => {
-      const today = new Date().getDate();
-      const dueDay = new Date(task.dueDate).getDate();
-      if (today === dueDay) displayExistingTask(task);
-    });
-  });
-}
 
-function displayWeekTasks() {
+//!!!!!!
+function initialLoad() {            
   const allProjects = Task_Module.getAllProjectsAndTasks();
-  DOM_Module.clearTaskContiner();
-  allProjects.forEach(project => {
-    project.tasks.forEach(task => {
-      const dayDifference = ((new Date(task.dueDate) - new Date()) / (1000 * 60 * 60 * 24));
-      if ((dayDifference <= 7) && (dayDifference > 0)) displayExistingTask(task);
-    });
-  });
-}
-
-function displayImportantTasks() {
-  const allProjects = Task_Module.getAllProjectsAndTasks();
-  DOM_Module.clearTaskContiner();
-  allProjects.forEach(project => {
-    project.tasks.forEach(task => {
-      if (task.importance) displayExistingTask(task)
-    });
-  });
-}
-
+  console.log(allProjects);
+  allProjects.forEach(project => addProject(project));
+  selectGeneralProject();
+  DOM_Module.navAll.click();
+}//!!!!!
 
 initialLoad();
 window.addEventListener("beforeunload", Task_Module.saveChanges);

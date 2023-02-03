@@ -1,9 +1,3 @@
-if (localStorage.getItem("allProjects") === null) {
-  localStorage.setItem("allProjects", "[]");
-} 
-//localStorage.setItem("allProjects", "[]");
-const allProjects = JSON.parse(localStorage.getItem("allProjects"));
-
 class Task {
   constructor(title, description, importance, dueDate, projectName) {
     this.title = title;
@@ -35,6 +29,15 @@ class Project {
     this.tasks = [];
   }
 }
+
+if (localStorage.getItem("allProjects") === null) {
+  localStorage.setItem("allProjects", "[]");
+} 
+//localStorage.setItem("allProjects", "[]");
+const allProjects = JSON.parse(localStorage.getItem("allProjects"));
+allProjects.forEach(project => {
+  project.tasks.forEach(task => regainTaskMethods(task));
+});
 
 
 function regainTaskMethods(task) {
@@ -90,6 +93,42 @@ function saveChanges() {
   localStorage.setItem("allProjects", JSON.stringify(allProjects));
 }
 
+function getFilteredTasks(criteria) {
+  const filteredTasks = [];
+
+  if (criteria === "All") {
+    allProjects.forEach(project => {
+      project.tasks.forEach(task => filteredTasks.push(task));
+    })
+  }
+  if (criteria === "Today") {
+    allProjects.forEach(project => {
+      project.tasks.forEach(task => {
+        const today = new Date().getDate();
+        const dueDay = new Date(task.dueDate).getDate();
+        if (today === dueDay) filteredTasks.push(task);
+      })
+    })
+  }
+  if (criteria === "Week") {
+    allProjects.forEach(project => {
+      project.tasks.forEach(task => {
+        const dayDifference = ((new Date(task.dueDate) - new Date()) / (1000 * 60 * 60 * 24));
+        if ((dayDifference <= 7) && (dayDifference > 0)) filteredTasks.push(task);
+      })
+    })
+  }
+  if (criteria === "Important") {
+    allProjects.forEach(project => {
+      project.tasks.forEach(task => {
+        if (task.importance) filteredTasks.push(task);
+      })
+    })
+  }
+
+  return filteredTasks;
+}
+
 
 export default {
   createTask,
@@ -101,5 +140,6 @@ export default {
   removeProject,
   getAllProjectsAndTasks,
   saveChanges,
-  regainTaskMethods
+  regainTaskMethods,
+  getFilteredTasks
 }

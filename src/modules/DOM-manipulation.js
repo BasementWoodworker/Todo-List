@@ -39,8 +39,10 @@ sidebar.append(
 // Main
 const main = document.createElement("main");
 const showTaskForm = createElementWithClassAndContent("button", "show-task-form", "+");
+const mainTitle = createElementWithClassAndContent("h1", "main-title", "")
 const containerOfAllTasks = createElementWithClassAndContent("div", "all-tasks-container", "");
 main.append(
+  mainTitle,
   containerOfAllTasks,
   showTaskForm
 );
@@ -196,8 +198,9 @@ function removeTask(taskContainer) {
   taskContainer.remove();
 }
 
-function clearTaskContiner() {
+function clearTaskContainer() {
   containerOfAllTasks.replaceChildren();
+  mainTitle.textContent = "";
 }
 
 
@@ -233,6 +236,7 @@ function displayProject(project) {
   const projectContainer = createElementWithClassAndContent("div", "project-container", "");
   projectNav.appendChild(projectContainer);
 
+  const selectContainer = createElementWithClassAndContent("div", "select-container", "");
   const projectTitle = createElementWithClassAndContent("div", "project-title", project.title);
   const editProjectButton = createElementWithClassAndContent("button", "edit-project", "RENAME");
   const deleteProjectButton = createElementWithClassAndContent("button", "delete-project", "DELETE");
@@ -242,6 +246,7 @@ function displayProject(project) {
     deleteProjectButton
   )
   projectContainer.append(
+    selectContainer,
     projectTitle,
     buttonContainer
   )
@@ -291,8 +296,8 @@ function removeProject(projectContainer) {
 
 let previousProject;
 function highlightProject(currentProject) {
-  if (previousProject !== undefined) previousProject.classList.toggle("highlighted");
-  currentProject.classList.toggle("highlighted");
+  if (previousProject !== undefined) previousProject.querySelector(".select-container").classList.toggle("chosen");
+  currentProject.querySelector(".select-container").classList.toggle("chosen");
   previousProject = currentProject;
 }
 
@@ -313,11 +318,15 @@ function toggleModal() {
   modal.classList.toggle("hidden");
 }
 
+function setMainTitle(title) {
+  mainTitle.textContent = title;
+}
+
 
 export default {
   buildTaskForm,
   displayTask,
-  clearTaskContiner,
+  clearTaskContainer,
   buildTaskEdit,
   editTask,
   removeTask,
@@ -329,6 +338,7 @@ export default {
   highlightProject,
   highlightNav,
   removeForm,
+  setMainTitle,
   showTaskForm,
   showProjectForm,
   navAll,
