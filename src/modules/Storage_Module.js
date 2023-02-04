@@ -1,10 +1,11 @@
 class Task {
-  constructor(title, description, importance, dueDate, projectName) {
+  constructor(title, description, importance, dueDate, projectName, completion) {
     this.title = title;
     this.description = description;
     this.importance = importance;
     this.dueDate = dueDate;
     this.projectName = projectName;
+    this.completion = false;
   }
 
   get importanceSymbol() {
@@ -30,22 +31,28 @@ class Project {
   }
 }
 
-if (localStorage.getItem("allProjects") === null) {
-  localStorage.setItem("allProjects", "[]");
-} 
-//localStorage.setItem("allProjects", "[]");
-const allProjects = JSON.parse(localStorage.getItem("allProjects"));
-allProjects.forEach(project => {
-  project.tasks.forEach(task => regainTaskMethods(task));
-});
 
+let allProjects = JSON.parse(localStorage.getItem("allProjects"));
+if ((allProjects === null) || (allProjects.length === 0)) {
+  allProjects = [];
+  createNewProject("General Tasks");
+} else {
+  allProjects.forEach(project => {
+    project.tasks.forEach(task => regainTaskMethods(task));
+  });
+}
 
 function regainTaskMethods(task) {
   Object.setPrototypeOf(task, Task.prototype);
 }
 
+
 function createTask(title, description, importance, dueDate, projectName) {
   return new Task(title, description, importance, dueDate, projectName);
+}
+
+function toggleTaskCompletion(task) {
+  task.completion = !task.completion;
 }
 
 function editTask(task, newTitle, newDescription, newImportance, newDate) {
@@ -62,6 +69,7 @@ function addTaskToProject(task, project) {
 
 function removeTask(task) {
   const taskArray = allProjects.find(project => task.projectName === project.title).tasks;
+  console.log(taskArray);
   console.log(allProjects);
   const taskIndex = taskArray.indexOf(task);
   taskArray.splice(taskIndex, 1);
@@ -132,6 +140,7 @@ function getFilteredTasks(criteria) {
 
 export default {
   createTask,
+  toggleTaskCompletion,
   editTask,
   addTaskToProject,
   removeTask,

@@ -1,5 +1,5 @@
-import Task_Module from "./modules/task-creation-and-storage.js";
-import DOM_Module from "./modules/DOM-manipulation.js";
+import Storage_Module from "./modules/Storage_Module";
+import DOM_Module from "./modules/DOM_Module";
 import "./style.css";
 
 
@@ -9,19 +9,26 @@ let currentProject;
 
 
 function addTaskToStorage(title, description, importance, dueDate) {
-  const task = Task_Module.createTask(title, description, importance, dueDate, currentProject.title);
-  Task_Module.addTaskToProject(task, currentProject);
+  const task = Storage_Module.createTask(title, description, importance, dueDate, currentProject.title);
+  Storage_Module.addTaskToProject(task, currentProject);
   return task;
 }
 
 function addTaskToDOM(task) {
   const taskDOM = DOM_Module.displayTask(task);
-  taskDOM.editTaskButton.addEventListener("click", () => taskEditButton_Callback(task, taskDOM.taskContainer));
-  taskDOM.deleteTaskButton.addEventListener("click", () => taskDeleteButton_Callback(task, taskDOM.taskContainer));
+  taskDOM.taskContainer.addEventListener("click", () => taskClick_Callback(task, taskDOM.taskContainer));
+  taskDOM.editTaskButton.addEventListener("click", (event) => taskEditButton_Callback(event, task, taskDOM.taskContainer));
+  taskDOM.deleteTaskButton.addEventListener("click", (event) => taskDeleteButton_Callback(event, task, taskDOM.taskContainer));
+  taskDOM.infoTaskButton.addEventListener("click", (event) => taskInfoButton_Callback(event, task));
 }
 
+function taskClick_Callback(task, taskContainer) {
+  Storage_Module.toggleTaskCompletion(task);
+  DOM_Module.toggleTaskCompletion(taskContainer);
+}
 
-function taskEditButton_Callback(task, taskContainer) {
+function taskEditButton_Callback(event, task, taskContainer) {
+  event.stopPropagation();
   currentForm = DOM_Module.buildTaskEdit(task);
   currentForm.formElem.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -32,13 +39,31 @@ function taskEditButton_Callback(task, taskContainer) {
   currentForm.closeEditForm.addEventListener("click", () => DOM_Module.removeForm(currentForm.formElem));
 }
 
-function taskDeleteButton_Callback(task, taskContainer) {
-  Task_Module.removeTask(task);
-  DOM_Module.removeTask(taskContainer);
+function taskDeleteButton_Callback(event, task, taskContainer) {
+  event.stopPropagation();
+  currentForm = DOM_Module.buildDeletionForm(task);
+  currentForm.yesButton.addEventListener("click", () => {
+    console.log(task);
+    Storage_Module.removeTask(task);
+    DOM_Module.removeTask(taskContainer);
+  });
+  currentForm.formElem.addEventListener("submit", (event) => {
+    event.preventDefault();
+    DOM_Module.removeForm(currentForm.formElem);
+  });
+}
+
+function taskInfoButton_Callback(event, task) {
+  event.stopPropagation();
+  currentForm = DOM_Module.buildTaskInfo(task);
+  currentForm.formElem.addEventListener("submit", (event) => {
+    event.preventDefault();
+    DOM_Module.removeForm(currentForm.formElem);
+  })
 }
 
 function editTask(task, taskContainer) {
-  Task_Module.editTask(
+  Storage_Module.editTask(
     task, 
     currentForm.titleInput.value,
     currentForm.descriptionInput.value,
@@ -49,7 +74,7 @@ function editTask(task, taskContainer) {
 }
 
 
-function addProject(project) {
+function addProjectToDOM(project) {
   const projectDOM = DOM_Module.displayProject(project);
   selectProject(project, projectDOM.projectContainer);
   projectDOM.projectContainer.addEventListener("click", () => projectClick_Callback(project, projectDOM.projectContainer));
@@ -74,7 +99,16 @@ function projectEditButton_Callback(event, project, projectContainer) {
 
 function projectDeleteButton_Callback(event, project, projectContainer) {
   event.stopPropagation();
-  Task_Module.removeProject(project);
+  currentForm = DOM_Module.buildDeletionForm(project);
+  currentForm.yesButton.addEventListener("click", () => deleteProject(project, projectContainer));
+  currentForm.formElem.addEventListener("submit", (event) => {
+    event.preventDefault();
+    DOM_Module.removeForm(currentForm.formElem);
+  });
+}
+
+function deleteProject(project, projectContainer) {
+  Storage_Module.removeProject(project);
   DOM_Module.removeProject(projectContainer);
   selectGeneralProject();
 }
@@ -89,18 +123,18 @@ function selectProject(project, projectContainer) {
 }
 
 function selectGeneralProject() {
-  selectProject(Task_Module.getAllProjectsAndTasks()[0], document.querySelector(".project-container"));
+  selectProject(Storage_Module.getAllProjectsAndTasks()[0], document.querySelector(".project-container"));
 }
 
 function editProject(project, newTitle, projectContainer) {
-  Task_Module.editProject(project, newTitle);
+  Storage_Module.editProject(project, newTitle);
   DOM_Module.editProject(projectContainer, newTitle);
 }
 
 
 
 DOM_Module.showTaskForm.addEventListener("click", () => {
-  currentForm = DOM_Module.buildTaskForm();
+  currentForm = DOM_Module.buildTaskForm(currentProject);
   currentForm.formElem.addEventListener("submit", (event) => {
     event.preventDefault();
     const task = addTaskToStorage(
@@ -121,8 +155,8 @@ DOM_Module.showProjectForm.addEventListener("click", () => {
   currentForm.formElem.addEventListener("submit", (event) => {
     event.preventDefault();
     const projectName = event.target.children[1].value
-    const project = Task_Module.createNewProject(projectName);
-    addProject(project);
+    const project = Storage_Module.createNewProject(projectName);
+    addProjectToDOM(project);
     DOM_Module.removeForm(currentForm.formElem);
   });
   currentForm.closeProjectFormButton.addEventListener("click", () => DOM_Module.removeForm(currentForm.formElem));
@@ -139,20 +173,21 @@ function topNav_Callback(event, criteria) {
   DOM_Module.clearTaskContainer();
   DOM_Module.setMainTitle(criteria);
 
-  const filteredArray = Task_Module.getFilteredTasks(criteria);
+  const filteredArray = Storage_Module.getFilteredTasks(criteria);
   filteredArray.forEach(task => addTaskToDOM(task));
 }
 
 
-//!!!!!!
 function initialLoad() {            
-  const allProjects = Task_Module.getAllProjectsAndTasks();
+  const allProjects = Storage_Module.getAllProjectsAndTasks();
   console.log(allProjects);
-  allProjects.forEach(project => addProject(project));
+  allProjects.forEach(project => addProjectToDOM(project));
   selectGeneralProject();
+  document.querySelector(".project-container:first-child button.delete-project").disabled = true;
   DOM_Module.navAll.click();
-}//!!!!!
+  window.addEventListener("beforeunload", Storage_Module.saveChanges);
+  DOM_Module.modal.addEventListener("click", () => DOM_Module.removeForm(currentForm.formElem));
+}
 
 initialLoad();
-window.addEventListener("beforeunload", Task_Module.saveChanges);
-DOM_Module.modal.addEventListener("click", () => DOM_Module.removeForm(currentForm.formElem));
+

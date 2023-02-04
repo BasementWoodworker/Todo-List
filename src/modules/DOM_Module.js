@@ -61,9 +61,11 @@ body.append(
 
 // Initial build end
 
-function buildTaskForm() {
+function buildTaskForm(currentProject) {
   const formElem = createElementWithClassAndContent("form", "task-form", "");
   body.appendChild(formElem);
+
+  const selectedProject = createElementWithClassAndContent("div", "selected-project", `Project # ${currentProject.title}`);
 
   const titleInput = createElementWithClassAndContent("input", "title-input", "");
   titleInput.setAttribute("type", "text");
@@ -93,9 +95,10 @@ function buildTaskForm() {
   dateInput.value = `${year}-${month}-${day}T${hours}:${minutes}`;
 
   const submitButton = createElementWithClassAndContent("button", "submit-task-form", "Add");
-  const closeTaskForm = createElementWithClassAndContent("button", "close-task-form", "⨉");
+  const closeTaskForm = createElementWithClassAndContent("button", "close-form", "✕");
 
   formElem.append(
+    selectedProject,
     titleInput,
     descriptionInput,
     importanceContainer,
@@ -119,26 +122,37 @@ function buildTaskForm() {
 function displayTask(task) {
   const taskContainer = createElementWithClassAndContent("div", "task-container", "");
   containerOfAllTasks.appendChild(taskContainer);
+  const buttonContainer = createElementWithClassAndContent("button", "task-button-container", "");
   const editTaskButton = createElementWithClassAndContent("button", "edit-task", "EDIT");
-  const deleteTaskButton = createElementWithClassAndContent("button", "delete-task", "x");
-  taskContainer.append(
-    createElementWithClassAndContent("div", "task-title", task.title),
-    createElementWithClassAndContent("div", "task-description", task.description),
-    createElementWithClassAndContent("div", "task-importance", task.importanceSymbol),
-    createElementWithClassAndContent("div", "task-date", task.timeLeft()),
+  const deleteTaskButton = createElementWithClassAndContent("button", "delete-task", "X");
+  const infoTaskButton = createElementWithClassAndContent("button", "task-info", "ⓘ");
+  buttonContainer.append(
+    infoTaskButton,
     editTaskButton,
     deleteTaskButton
   )
+  taskContainer.append(
+    createElementWithClassAndContent("div", "task-title", task.title),
+    createElementWithClassAndContent("div", "task-importance", task.importanceSymbol),
+    createElementWithClassAndContent("div", "task-date", task.timeLeft()),
+    buttonContainer
+  )
+  if (task.completion) toggleTaskCompletion(taskContainer);
 
   return {
     taskContainer,
     editTaskButton,
-    deleteTaskButton
+    deleteTaskButton,
+    infoTaskButton
   }
 }
 
+function toggleTaskCompletion(taskContainer) {
+  taskContainer.classList.toggle("completed");
+}
+
 function buildTaskEdit(task) {
-  const formElem = createElementWithClassAndContent("form", "task-edit-form", "");
+  const formElem = createElementWithClassAndContent("form", "task-form", "");
   body.appendChild(formElem);
 
   const titleInput = createElementWithClassAndContent("input", "title-input", "");
@@ -163,11 +177,13 @@ function buildTaskEdit(task) {
   dateInput.setAttribute("type", "datetime-local");
   dateInput.value = task.dueDate;
 
-  const submitButton = createElementWithClassAndContent("button", "submit-edit-form", "Save");
-  const closeEditForm = createElementWithClassAndContent("button", "close-edit-form", "⨉");
+  const submitButton = createElementWithClassAndContent("button", "submit-task-form", "Save");
+  const closeEditForm = createElementWithClassAndContent("button", "close-form", "✕");
 
   formElem.append(
+    createElementWithClassAndContent("div", "task-form-label", "Task:"),
     titleInput,
+    createElementWithClassAndContent("div", "task-form-label", "Description:"),
     descriptionInput,
     importanceContainer,
     dateInput,
@@ -187,9 +203,51 @@ function buildTaskEdit(task) {
   }
 }
 
+function buildTaskInfo(task) {
+  const formElem = createElementWithClassAndContent("form", "task-form", "");
+  body.appendChild(formElem);
+
+  const titleInput = createElementWithClassAndContent("input", "title-input", "");
+  titleInput.setAttribute("disabled", true);
+  titleInput.setAttribute("value", task.title);
+
+  const descriptionInput = document.createElement("textarea");
+  descriptionInput.textContent = task.description;
+  descriptionInput.setAttribute("disabled", true);
+
+  const importanceLabel = createElementWithClassAndContent("span", "task-form-label", "Important: ");
+  const importance = createElementWithClassAndContent("span", "task-form-label", task.importance ? "yes" : "no");
+  task.importance ? importance.classList.add("important") : importance.classList.add("unimportant");
+  const importanceContainer = createElementWithClassAndContent("div", "importance-container", "")
+  importanceContainer.append(importanceLabel, importance);
+
+  const dateInput = createElementWithClassAndContent("input", "date-input", "");
+  dateInput.setAttribute("type", "datetime-local");
+  dateInput.setAttribute("disabled", true);
+  dateInput.value = task.dueDate;
+
+  const closeEditForm = createElementWithClassAndContent("button", "close-form", "✕");
+
+  formElem.append(
+    createElementWithClassAndContent("div", "task-form-label", "Task:"),
+    titleInput,
+    createElementWithClassAndContent("div", "task-form-label", "Description:"),
+    descriptionInput,
+    importanceContainer,
+    createElementWithClassAndContent("div", "task-form-label", "Due Date"),
+    dateInput,
+    closeEditForm
+  )
+
+  toggleModal();
+
+  return {
+    formElem
+  }
+}
+
 function editTask(updatedTask, taskContainer) {
   taskContainer.querySelector(".task-title").textContent = updatedTask.title;
-  taskContainer.querySelector(".task-description").textContent = updatedTask.description;
   taskContainer.querySelector(".task-importance").textContent = updatedTask.importanceSymbol;
   taskContainer.querySelector(".task-date").textContent = updatedTask.timeLeft();
 }
@@ -214,7 +272,7 @@ function buildProjectForm() {
   titleLabel.setAttribute("for", "project-title-input");
 
   const submitButton = createElementWithClassAndContent("button", "project-form-submit", "Add");
-  const closeProjectFormButton = createElementWithClassAndContent("button", "close-project-form", "⨉");
+  const closeProjectFormButton = createElementWithClassAndContent("button", "close-form", "✕");
 
   formElem.append(
     titleLabel,
@@ -268,7 +326,7 @@ function buildProjectEdit(projectTitle) {
   titleLabel.setAttribute("for", "project-title-input");
 
   const submitButton = createElementWithClassAndContent("button", "project-form-submit", "Save");
-  const closeProjectFormButton = createElementWithClassAndContent("button", "close-project-form", "⨉");
+  const closeProjectFormButton = createElementWithClassAndContent("button", "close-form", "⨉");
 
   formElem.append(
     titleLabel,
@@ -309,6 +367,33 @@ function highlightNav(currentNav) {
 }
 
 
+function buildDeletionForm(object) {
+  const formElem = createElementWithClassAndContent("form", "deletion-form", "");
+  body.appendChild(formElem);
+
+  const deletionMessage = createElementWithClassAndContent("div", "deletion-message", `Are you sure?\n${object.title} will be gone forever`);
+  const yesButton = createElementWithClassAndContent("button", "deletion-yes", "Yes");
+  const noButton = createElementWithClassAndContent("button", "deletion-no", "No")
+  const closeDeletionFormButton = createElementWithClassAndContent("button", "close-form", "✕");
+
+  formElem.append(
+    deletionMessage,
+    yesButton,
+    noButton,
+    closeDeletionFormButton
+  )
+
+  toggleModal();
+
+  return {
+    formElem,
+    yesButton,
+    noButton,
+    closeDeletionFormButton
+  }
+}
+
+
 function removeForm(form) {
   form.remove();
   toggleModal();
@@ -326,10 +411,12 @@ function setMainTitle(title) {
 export default {
   buildTaskForm,
   displayTask,
-  clearTaskContainer,
+  toggleTaskCompletion,
   buildTaskEdit,
+  buildTaskInfo,
   editTask,
   removeTask,
+  clearTaskContainer,
   buildProjectForm,
   displayProject,
   buildProjectEdit,
@@ -338,6 +425,7 @@ export default {
   highlightProject,
   highlightNav,
   removeForm,
+  buildDeletionForm,
   setMainTitle,
   showTaskForm,
   showProjectForm,
