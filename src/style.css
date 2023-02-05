@@ -27,7 +27,6 @@
 }
 
 
-
 html,
 body {
   height: 100%;
@@ -35,13 +34,13 @@ body {
 
 body {
   display: grid;
-  grid-template-columns: 400px 1fr;
+  grid-template-columns: 400px minmax(550px, 1fr);
   grid-template-rows: 70px 1fr;
   font-family: Roboto;
 }
 
 form {
-  position: absolute;
+  position: fixed;
   z-index: 5;
   color: var(--darkblue);
   background-color: white;
@@ -59,13 +58,9 @@ form button:active {
 input,
 textarea {
   color: var(--blue-input);
-}
-
-
-input,
-textarea {
   padding: 4px;
 }
+
 
 
 /* Header */
@@ -84,6 +79,7 @@ header > a {
 /* Sidebar */
 .sidebar {
   background-color: var(--lightgrey);
+  min-width: 200px;
 }
 
 span.projects-heading {
@@ -231,6 +227,7 @@ button.project-form-submit {
 
 /* Main */
 main {
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -243,18 +240,44 @@ main > .all-tasks-container {
   width: min(1000px, 80%);
 }
 
-main > h1 {
+.main-top-container {
+  width: min(1000px, 80%);
+  display: grid;
+  grid-template-columns: 200px 1fr 200px;
+}
+
+.main-title {
+  position: relative;
   text-align: center;
   font-size: 52px;
   color: var(--blue-border);
   margin: 20px;
 }
 
+select.task-sort {
+  justify-self: end;
+  align-self: center;
+  height: 40px;
+
+  padding: 4px;
+  border: 2px solid var(--darkblue);
+  border-radius: 4px;
+  font-size: 18px;
+  width:min-content;
+  color:var(--darkblue);
+}
+
+select.task-sort:active {
+  pointer-events: none;
+}
+
+
 /* Main -> Task Form */
 main > button.show-task-form {
-  position: absolute;
+  position: fixed;
   bottom: 50px;
   right: 50px;
+  z-index: 3;
 
   color: white;
   background-color: var(--blue);
@@ -342,6 +365,10 @@ button.close-form {
   color: var(--blue);
 }
 
+.task-form-completion {
+  color: green;
+}
+
 button.submit-edit-form {
   background-color: var(--blue);
   color: white;
@@ -359,7 +386,7 @@ button.close-edit-form {
 .task-container {
   position: relative;
   display: grid;
-  grid-template-columns: 1fr 30px 150px 140px;
+  grid-template-columns: minmax(50px, 1fr) 30px 150px 140px;
   align-items: center;
   color: var(--darkblue);
   background-color: var(--lightgrey);
@@ -389,7 +416,7 @@ button.close-edit-form {
   z-index: 2;
   content: " ";
   width: 100%;
-  border: 1px solid grey;
+  border: 1px solid var(--blue);
 }
 
 .task-container.completed::after {
@@ -467,7 +494,7 @@ button.close-edit-form {
 
 /* Modal */
 #modal {
-  position: absolute;
+  position: fixed;
   z-index: 4;
   height: 100%;
   width: 100%;

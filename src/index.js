@@ -6,6 +6,7 @@ import "./style.css";
 // Main Logic
 let currentForm;
 let currentProject;
+let displayedTasks = [];
 
 
 function addTaskToStorage(title, description, importance, dueDate) {
@@ -15,6 +16,7 @@ function addTaskToStorage(title, description, importance, dueDate) {
 }
 
 function addTaskToDOM(task) {
+  displayedTasks.push(task);
   const taskDOM = DOM_Module.displayTask(task);
   taskDOM.taskContainer.addEventListener("click", () => taskClick_Callback(task, taskDOM.taskContainer));
   taskDOM.editTaskButton.addEventListener("click", (event) => taskEditButton_Callback(event, task, taskDOM.taskContainer));
@@ -43,9 +45,9 @@ function taskDeleteButton_Callback(event, task, taskContainer) {
   event.stopPropagation();
   currentForm = DOM_Module.buildDeletionForm(task);
   currentForm.yesButton.addEventListener("click", () => {
-    console.log(task);
     Storage_Module.removeTask(task);
     DOM_Module.removeTask(taskContainer);
+    displayedTasks.splice(displayedTasks.indexOf(task), 1);
   });
   currentForm.formElem.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -71,6 +73,12 @@ function editTask(task, taskContainer) {
     currentForm.dateInput.value
   );
   DOM_Module.editTask(task, taskContainer);
+}
+
+function replaceAllTasks(taskArray) {
+  DOM_Module.clearTaskContainer();
+  displayedTasks = [];
+  taskArray.forEach(task => addTaskToDOM(task));
 }
 
 
@@ -115,11 +123,10 @@ function deleteProject(project, projectContainer) {
 
 function selectProject(project, projectContainer) {
   currentProject = project;
-  DOM_Module.clearTaskContainer();
   DOM_Module.highlightProject(projectContainer);
   DOM_Module.highlightNav(projectContainer);
+  replaceAllTasks(project.tasks);
   DOM_Module.setMainTitle(project.title);
-  project.tasks.forEach(task => addTaskToDOM(task));
 }
 
 function selectGeneralProject() {
@@ -170,11 +177,19 @@ DOM_Module.navImportant.addEventListener("click", event => topNav_Callback(event
 
 function topNav_Callback(event, criteria) {
   DOM_Module.highlightNav(event.target);
-  DOM_Module.clearTaskContainer();
-  DOM_Module.setMainTitle(criteria);
-
   const filteredArray = Storage_Module.getFilteredTasks(criteria);
-  filteredArray.forEach(task => addTaskToDOM(task));
+  replaceAllTasks(filteredArray);
+  DOM_Module.setMainTitle(criteria);
+}
+
+DOM_Module.taskSort.addEventListener("click", (event) => sortTasks(event))
+
+function sortTasks(event) {
+  const criteria = event.target.value;
+  if (criteria === "default") return;
+
+  const sorted = Storage_Module.sortTasks(displayedTasks, criteria);
+  replaceAllTasks(sorted);
 }
 
 
@@ -190,4 +205,3 @@ function initialLoad() {
 }
 
 initialLoad();
-

@@ -64,13 +64,11 @@ function editTask(task, newTitle, newDescription, newImportance, newDate) {
 
 function addTaskToProject(task, project) {
   project.tasks.push(task);
-  console.log(allProjects);
 }
 
 function removeTask(task) {
-  const taskArray = allProjects.find(project => task.projectName === project.title).tasks;
-  console.log(taskArray);
-  console.log(allProjects);
+  const taskProject = allProjects.find(project => project.tasks.includes(task));
+  const taskArray = taskProject.tasks;
   const taskIndex = taskArray.indexOf(task);
   taskArray.splice(taskIndex, 1);
 }
@@ -89,7 +87,6 @@ function editProject(project, newTitle) {
 function removeProject(project) {
   const projectIndex = allProjects.indexOf(project);
   allProjects.splice(projectIndex, 1);
-  console.log(allProjects);
 }
 
 
@@ -137,6 +134,28 @@ function getFilteredTasks(criteria) {
   return filteredTasks;
 }
 
+let previousCriteria;
+let sorted;
+function sortTasks(tasks, criteria) {
+  if (previousCriteria === criteria) {
+    sorted.reverse()
+    return sorted;
+  };
+  previousCriteria = criteria;
+
+  switch (criteria) {
+    case "recent":
+      sorted = [...tasks].reverse();
+      break;
+    case "time left":
+      sorted = [...tasks].sort((task1, task2) => {return new Date(task1.dueDate) - new Date(task2.dueDate);});
+      break;
+    case "alphabetic":
+      sorted = [...tasks].sort((task1, task2) => {if (task1.title < task2.title) return -1;});
+      break;
+  }
+  return sorted;
+}
 
 export default {
   createTask,
@@ -150,5 +169,6 @@ export default {
   getAllProjectsAndTasks,
   saveChanges,
   regainTaskMethods,
-  getFilteredTasks
+  getFilteredTasks,
+  sortTasks
 }

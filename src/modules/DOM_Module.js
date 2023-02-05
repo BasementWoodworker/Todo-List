@@ -39,10 +39,23 @@ sidebar.append(
 // Main
 const main = document.createElement("main");
 const showTaskForm = createElementWithClassAndContent("button", "show-task-form", "+");
-const mainTitle = createElementWithClassAndContent("h1", "main-title", "")
+const mainTopContainer = createElementWithClassAndContent("div", "main-top-container", "")
+const mainTitle = createElementWithClassAndContent("span", "main-title", "")
+const taskSort = createElementWithClassAndContent("select", "task-sort", "");
+taskSort.innerHTML = `
+<option value = "default">Sort By</option>
+<option value = "recent">Recently Added</option>
+<option value = "time left">Time Left</option>
+<option value = "alphabetic">A-Z</option>
+`;
+mainTopContainer.append(
+  document.createElement("span"),
+  mainTitle,
+  taskSort
+)
 const containerOfAllTasks = createElementWithClassAndContent("div", "all-tasks-container", "");
 main.append(
-  mainTitle,
+  mainTopContainer,
   containerOfAllTasks,
   showTaskForm
 );
@@ -207,6 +220,11 @@ function buildTaskInfo(task) {
   const formElem = createElementWithClassAndContent("form", "task-form", "");
   body.appendChild(formElem);
 
+  const titleLabel = createElementWithClassAndContent("span", "task-form-label", "Task:");
+  const taskCompletion = createElementWithClassAndContent("span", "task-form-completion", "")
+  titleLabel.appendChild(taskCompletion);
+  if (task.completion) taskCompletion.textContent = " Done";
+
   const titleInput = createElementWithClassAndContent("input", "title-input", "");
   titleInput.setAttribute("disabled", true);
   titleInput.setAttribute("value", task.title);
@@ -229,7 +247,7 @@ function buildTaskInfo(task) {
   const closeEditForm = createElementWithClassAndContent("button", "close-form", "✕");
 
   formElem.append(
-    createElementWithClassAndContent("div", "task-form-label", "Task:"),
+    titleLabel,
     titleInput,
     createElementWithClassAndContent("div", "task-form-label", "Description:"),
     descriptionInput,
@@ -258,7 +276,6 @@ function removeTask(taskContainer) {
 
 function clearTaskContainer() {
   containerOfAllTasks.replaceChildren();
-  mainTitle.textContent = "";
 }
 
 
@@ -433,5 +450,6 @@ export default {
   navToday,
   navWeek,
   navImportant,
+  taskSort,
   modal
 }
