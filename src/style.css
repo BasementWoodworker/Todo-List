@@ -26,7 +26,6 @@
   src: url("./assets/fonts/Roboto-Medium.ttf");
 }
 
-
 html,
 body {
   height: 100%;
@@ -61,8 +60,6 @@ textarea {
   padding: 4px;
 }
 
-
-
 /* Header */
 header {
   grid-column: 1 / 3;
@@ -79,7 +76,6 @@ header > a {
 /* Sidebar */
 .sidebar {
   background-color: var(--lightgrey);
-  min-width: 200px;
 }
 
 span.projects-heading {
@@ -129,9 +125,7 @@ button.project-form-submit {
   font-size: 24px;
 }
 
-
-/* Sidebar -> General Navigation */ 
-
+/* Sidebar -> Navigation */ 
 .general-navigation > div {
   display: flex;
   justify-content: center;
@@ -252,6 +246,8 @@ main > .all-tasks-container {
   font-size: 52px;
   color: var(--blue-border);
   margin: 20px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 select.task-sort {
@@ -263,7 +259,6 @@ select.task-sort {
   border: 2px solid var(--darkblue);
   border-radius: 4px;
   font-size: 18px;
-  width:min-content;
   color:var(--darkblue);
 }
 
@@ -286,7 +281,6 @@ main > button.show-task-form {
   width: 80px;
   border: solid 1px var(--lightgrey);
   border-radius: 50%;
-
 }
 
 .task-form {
@@ -314,7 +308,6 @@ main > button.show-task-form {
   left: 4px;
 }
 
-
 button.submit-task-form {
   background-color: var(--blue);
   color: white;
@@ -341,18 +334,7 @@ button.close-form {
   border-radius: 6px;
 }
 
-/* Main -> Task Edit Form */
-
-.task-edit-form {
-  top: 50%;
-  left: 50%;
-
-  background-color: var(--lightgrey);
-  border: 2px solid darkgrey;
-  border-radius: 8px;
-  padding: 10px;
-}
-
+/* Main -> Task Info, Edit and Deletion Forms */
 .task-form-label {
   font-size: 24px;
 }
@@ -367,19 +349,6 @@ button.close-form {
 
 .task-form-completion {
   color: green;
-}
-
-button.submit-edit-form {
-  background-color: var(--blue);
-  color: white;
-  border-radius: 8px;
-  font-size: 24px;
-}
-
-button.close-edit-form {
-  position: absolute;
-  top: 0;
-  right: 0;
 }
 
 /* Main -> Displayed Tasks */
@@ -443,10 +412,6 @@ button.close-edit-form {
   padding: 0px 8px;
 }
 
-.task-date {
-  font-size: 18px;
-}
-
 .task-importance:hover::before {
   position: absolute;
   top: -8px;
@@ -456,6 +421,10 @@ button.close-edit-form {
   content: "Important";
   font-size: 18px;
   color: var(--important);
+}
+
+.task-date {
+  font-size: 18px;
 }
 
 .task-button-container {
@@ -505,9 +474,7 @@ button.close-edit-form {
   z-index: -1;
 }
 
-/* Other */
-
-
+/* Deletion Form (Same for Tasks and Projects) */
 .deletion-form {
   top: calc(50% - 75px);
   right: calc(50% - 100px);
@@ -516,15 +483,25 @@ button.close-edit-form {
 
   display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: 2fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr 50px;
 }
 
 .deletion-message {
   grid-column: 1 / 3;
   align-self: center;
+  justify-self: center;
   padding: 8px;
   font-size: 18px;
-  white-space: pre-wrap;
+}
+
+.deletion-title {
+  grid-column: 1 / 3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0px 8px;
+  font-size: 20px;
+  text-align: center;
 }
 
 .deletion-yes {

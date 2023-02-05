@@ -16,13 +16,17 @@ const projectsHeading = createElementWithClassAndContent("span", "projects-headi
 const generalNav = createElementWithClassAndContent("nav", "general-navigation", "");
 const navAll = createElementWithClassAndContent("div", "all-projects", "All");
 const navToday = createElementWithClassAndContent("div", "today-projects", "Today");
+const navTomorrow = createElementWithClassAndContent("div", "tomorrow-projects", "Tomorrow");
 const navWeek = createElementWithClassAndContent("div", "this-week-projects", "Week");
 const navImportant = createElementWithClassAndContent("div", "important-projects", "Important");
+const navCompleted = createElementWithClassAndContent("div", "completed-projects", "Completed");
 generalNav.append(
   navAll,
   navToday,
+  navTomorrow,
   navWeek,
-  navImportant
+  navImportant,
+  navCompleted
 )
 const projectNav = createElementWithClassAndContent("nav", "project-navigation", "");
 const showProjectForm = createElementWithClassAndContent("button", "show-project-form", "+");
@@ -71,9 +75,9 @@ body.append(
   main,
   modal
 )
-
 // Initial build end
 
+// Task (Creation Form)
 function buildTaskForm(currentProject) {
   const formElem = createElementWithClassAndContent("form", "task-form", "");
   body.appendChild(formElem);
@@ -132,6 +136,7 @@ function buildTaskForm(currentProject) {
   }
 }
 
+// Displayed Tasks
 function displayTask(task) {
   const taskContainer = createElementWithClassAndContent("div", "task-container", "");
   containerOfAllTasks.appendChild(taskContainer);
@@ -164,6 +169,21 @@ function toggleTaskCompletion(taskContainer) {
   taskContainer.classList.toggle("completed");
 }
 
+function editTask(updatedTask, taskContainer) {
+  taskContainer.querySelector(".task-title").textContent = updatedTask.title;
+  taskContainer.querySelector(".task-importance").textContent = updatedTask.importanceSymbol;
+  taskContainer.querySelector(".task-date").textContent = updatedTask.timeLeft();
+}
+
+function removeTask(taskContainer) {
+  taskContainer.remove();
+}
+
+function clearTaskContainer() {
+  containerOfAllTasks.replaceChildren();
+}
+
+// Task (Edit, Info, Deletion Forms)
 function buildTaskEdit(task) {
   const formElem = createElementWithClassAndContent("form", "task-form", "");
   body.appendChild(formElem);
@@ -264,21 +284,7 @@ function buildTaskInfo(task) {
   }
 }
 
-function editTask(updatedTask, taskContainer) {
-  taskContainer.querySelector(".task-title").textContent = updatedTask.title;
-  taskContainer.querySelector(".task-importance").textContent = updatedTask.importanceSymbol;
-  taskContainer.querySelector(".task-date").textContent = updatedTask.timeLeft();
-}
-
-function removeTask(taskContainer) {
-  taskContainer.remove();
-}
-
-function clearTaskContainer() {
-  containerOfAllTasks.replaceChildren();
-}
-
-
+// Project (Creation Form)
 function buildProjectForm() {
   const formElem = createElementWithClassAndContent("form", "project-form", "");
   body.appendChild(formElem);
@@ -307,6 +313,7 @@ function buildProjectForm() {
   }
 }
 
+// Displayed projects
 function displayProject(project) {
   const projectContainer = createElementWithClassAndContent("div", "project-container", "");
   projectNav.appendChild(projectContainer);
@@ -332,6 +339,15 @@ function displayProject(project) {
   };
 }
 
+function editProject(projectContainer, newTitle) {
+  projectContainer.querySelector(".project-title").textContent = newTitle;
+}
+
+function removeProject(projectContainer) {
+  projectContainer.remove();
+}
+
+// Project (Edit and Deletion Forms)
 function buildProjectEdit(projectTitle) {
   const formElem = createElementWithClassAndContent("form", "project-form", "");
   body.appendChild(formElem);
@@ -361,40 +377,21 @@ function buildProjectEdit(projectTitle) {
   }
 }
 
-function editProject(projectContainer, newTitle) {
-  projectContainer.querySelector(".project-title").textContent = newTitle;
-}
-
-function removeProject(projectContainer) {
-  projectContainer.remove();
-}
-
-let previousProject;
-function highlightProject(currentProject) {
-  if (previousProject !== undefined) previousProject.querySelector(".select-container").classList.toggle("chosen");
-  currentProject.querySelector(".select-container").classList.toggle("chosen");
-  previousProject = currentProject;
-}
-
-let previousNav;
-function highlightNav(currentNav) {
-  if (previousNav !== undefined) previousNav.classList.toggle("highlighted");
-  currentNav.classList.toggle("highlighted");
-  previousNav = currentNav;
-}
-
-
 function buildDeletionForm(object) {
   const formElem = createElementWithClassAndContent("form", "deletion-form", "");
   body.appendChild(formElem);
 
-  const deletionMessage = createElementWithClassAndContent("div", "deletion-message", `Are you sure?\n${object.title} will be gone forever`);
+  const deletionMessageStart = createElementWithClassAndContent("div", "deletion-message", "Are you sure?");
+  const objectTitle = createElementWithClassAndContent("div", "deletion-title", object.title);
+  const deletionMessageFinish = createElementWithClassAndContent("div", "deletion-message", "will be gone forever");
   const yesButton = createElementWithClassAndContent("button", "deletion-yes", "Yes");
   const noButton = createElementWithClassAndContent("button", "deletion-no", "No")
   const closeDeletionFormButton = createElementWithClassAndContent("button", "close-form", "✕");
 
   formElem.append(
-    deletionMessage,
+    deletionMessageStart,
+    objectTitle,
+    deletionMessageFinish,
     yesButton,
     noButton,
     closeDeletionFormButton
@@ -410,7 +407,22 @@ function buildDeletionForm(object) {
   }
 }
 
+// Sidebar Highlighting
+let previousProject;
+function highlightProject(currentProject) {
+  if (previousProject !== undefined) previousProject.querySelector(".select-container").classList.toggle("chosen");
+  currentProject.querySelector(".select-container").classList.toggle("chosen");
+  previousProject = currentProject;
+}
 
+let previousNav;
+function highlightNav(currentNav) {
+  if (previousNav !== undefined) previousNav.classList.toggle("highlighted");
+  currentNav.classList.toggle("highlighted");
+  previousNav = currentNav;
+}
+
+// General functions
 function removeForm(form) {
   form.remove();
   toggleModal();
@@ -448,8 +460,10 @@ export default {
   showProjectForm,
   navAll,
   navToday,
+  navTomorrow,
   navWeek,
   navImportant,
+  navCompleted,
   taskSort,
   modal
 }

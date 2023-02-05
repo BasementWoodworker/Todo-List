@@ -1,10 +1,9 @@
 class Task {
-  constructor(title, description, importance, dueDate, projectName, completion) {
+  constructor(title, description, importance, dueDate, completion) {
     this.title = title;
     this.description = description;
     this.importance = importance;
     this.dueDate = dueDate;
-    this.projectName = projectName;
     this.completion = false;
   }
 
@@ -31,7 +30,7 @@ class Project {
   }
 }
 
-
+// Local storage
 let allProjects = JSON.parse(localStorage.getItem("allProjects"));
 if ((allProjects === null) || (allProjects.length === 0)) {
   allProjects = [];
@@ -46,13 +45,13 @@ function regainTaskMethods(task) {
   Object.setPrototypeOf(task, Task.prototype);
 }
 
-
-function createTask(title, description, importance, dueDate, projectName) {
-  return new Task(title, description, importance, dueDate, projectName);
+function saveChanges() {
+  localStorage.setItem("allProjects", JSON.stringify(allProjects));
 }
 
-function toggleTaskCompletion(task) {
-  task.completion = !task.completion;
+// Tasks
+function createTask(title, description, importance, dueDate) {
+  return new Task(title, description, importance, dueDate);
 }
 
 function editTask(task, newTitle, newDescription, newImportance, newDate) {
@@ -73,7 +72,11 @@ function removeTask(task) {
   taskArray.splice(taskIndex, 1);
 }
 
+function toggleTaskCompletion(task) {
+  task.completion = !task.completion;
+}
 
+// Projects
 function createNewProject(title) {
   const project = new Project(title);
   allProjects.push(project);
@@ -89,15 +92,11 @@ function removeProject(project) {
   allProjects.splice(projectIndex, 1);
 }
 
-
 function getAllProjectsAndTasks() {
   return allProjects;
 }
 
-function saveChanges() {
-  localStorage.setItem("allProjects", JSON.stringify(allProjects));
-}
-
+// Filtering Tasks (sidebar navigation)
 function getFilteredTasks(criteria) {
   const filteredTasks = [];
 
@@ -112,6 +111,15 @@ function getFilteredTasks(criteria) {
         const today = new Date().getDate();
         const dueDay = new Date(task.dueDate).getDate();
         if (today === dueDay) filteredTasks.push(task);
+      })
+    })
+  }
+  if (criteria === "Tomorrow") {
+    allProjects.forEach(project => {
+      project.tasks.forEach(task => {
+        const tomorrow = new Date().getDate() + 1;
+        const dueDay = new Date(task.dueDate).getDate();
+        if (tomorrow === dueDay) filteredTasks.push(task);
       })
     })
   }
@@ -130,10 +138,18 @@ function getFilteredTasks(criteria) {
       })
     })
   }
+  if (criteria === "Completed") {
+    allProjects.forEach(project => {
+      project.tasks.forEach(task => {
+        if (task.completion) filteredTasks.push(task);
+      })
+    })
+  }
 
   return filteredTasks;
 }
 
+// Sorting Tasks
 let previousCriteria;
 let sorted;
 function sortTasks(tasks, criteria) {
